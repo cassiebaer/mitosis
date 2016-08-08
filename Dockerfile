@@ -16,4 +16,4 @@ RUN apk add --update bash coreutils ncurses tar gzip nodejs \
   && nvm use --delete-prefix v6.3.1 \
   && npm install
 
-EXPOSE 80
+EXPOSE 3001
