@@ -4,7 +4,8 @@
   "description": "Docker compiler service",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/icasperzen/mitosis/issues"
   },
-  "homepage": "https://github.com/icasperzen/mitosis#readme"
+  "homepage": "https://github.com/icasperzen/mitosis#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "morgan": "^1.7.0"
+  }
 }
