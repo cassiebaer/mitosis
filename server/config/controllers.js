@@ -1,5 +1,5 @@
-/** Dependencies **/
 const fetch = require('node-fetch');
+const docker = require('./docker.service');
 
 /** Controlllers **/
 const checkRequest = ((req, res, next) => {
@@ -15,7 +15,7 @@ const checkRequest = ((req, res, next) => {
 /* Specific to testing authentication via FluidNotes */
 const authEndpoint = 'http://localhost:3000/auth/check-token';
 
-const run = (req, res) => {
+const auth = (req, res) => {
   if (req.get('Authorization')) {
     const token = req.get('Authorization').split(' ')[1];
 
