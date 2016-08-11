@@ -15,7 +15,7 @@ const checkRequest = ((req, res, next) => {
 /* Specific to testing authentication via FluidNotes */
 const authEndpoint = 'http://localhost:3000/auth/check-token';
 
-const auth = (req, res) => {
+const run = (req, res) => {
   if (req.get('Authorization')) {
     const token = req.get('Authorization').split(' ')[1];
 
