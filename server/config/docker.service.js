@@ -18,10 +18,10 @@ const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
  */
 const image = language => {
   switch (language) {
-    case 'python': return 'python';
-    case 'ruby': return 'ruby';
-    case 'node': return 'node';
-    default: throw new DockerError(`${language} is not a supported language`);
+  case 'python': return 'python';
+  case 'ruby': return 'ruby';
+  case 'node': return 'node';
+  default: throw new DockerError(`${language} is not a supported language`);
   }
 };
 
@@ -34,10 +34,10 @@ const image = language => {
  */
 const cmd = (language, filename) => {
   switch (language) {
-    case 'python': return `python ${dockerVolumeDir}/${filename}`;
-    case 'ruby': return `ruby ${dockerVolumeDir}/${filename}`;
-    case 'node': return `node ${dockerVolumeDir}/${filename}`;
-    default: throw new DockerError(`${language} is not a supported language.`);
+  case 'python': return `python ${dockerVolumeDir}/${filename}`;
+  case 'ruby': return `ruby ${dockerVolumeDir}/${filename}`;
+  case 'node': return `node ${dockerVolumeDir}/${filename}`;
+  default: throw new DockerError(`${language} is not a supported language.`);
   }
 };
 
@@ -62,6 +62,7 @@ module.exports = (language, content) => {
       /* "docker run --rm -t -v /../temp:/usr/src/app python python usr/src/app/hashFileName" */
       let cmdString = [dockerRunCmd, dockerVolume, image(language), cmd(language, filename)].join(' ');
 
+      console.log(cmdString);
       exec(cmdString, (err, stdout, stderr) => {
         fs.unlink(filepath, err => {
           if (err) { reject(err); }
