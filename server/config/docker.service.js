@@ -61,8 +61,6 @@ module.exports = (language, content) => {
       if (err) { reject(err); }
       /* "docker run --rm -t -v /../temp:/usr/src/app python python usr/src/app/hashFileName" */
       let cmdString = [dockerRunCmd, dockerVolume, image(language), cmd(language, filename)].join(' ');
-
-      console.log(cmdString);
       exec(cmdString, (err, stdout, stderr) => {
         fs.unlink(filepath, err => {
           if (err) { reject(err); }
