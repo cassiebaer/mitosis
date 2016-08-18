@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 
 /** Helper Variables **/
 const dockerVolumeDir = '/usr/src/app';
-const dockerRunCmd = 'docker run --rm -t';
+const dockerRunCmd = 'docker run --rm -t --name';
 const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
 
 /** Helper Functions **/
@@ -59,8 +59,13 @@ module.exports = (language, content) => {
   return new Promise((resolve, reject) => {
     fs.writeFile(filepath, content, err => {
       if (err) { reject(err); }
-      /* "docker run --rm -t -v /../temp:/usr/src/app python python usr/src/app/hashFileName" */
-      let cmdString = [dockerRunCmd, dockerVolume, image(language), cmd(language, filename)].join(' ');
+      /* "docker run --rm -t --name hashFileName -v /../temp:/usr/src/app python python usr/src/app/hashFileName" */
+      let cmdString = [dockerRunCmd, filename, dockerVolume, image(language), cmd(language, filename)].join(' ');
+
+      setTimeout(function() {
+        exec(`docker rm -f ${filename}`);
+      }, 60000);
+
       exec(cmdString, (err, stdout, stderr) => {
         fs.unlink(filepath, err => {
           if (err) { reject(err); }
