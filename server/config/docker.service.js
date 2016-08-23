@@ -6,7 +6,8 @@ const Promise = require('bluebird');
 
 /** Helper Variables **/
 const dockerVolumeDir = '/usr/src/app';
-const dockerRunCmd = 'docker run --rm -t --name';
+// const dockerRunCmd = 'docker run --rm -t --name';
+const dockerRunCmd = 'docker run -t --name';
 const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
 
 /** Helper Functions **/
@@ -17,10 +18,12 @@ const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
  * @return {string}          Image to use
  */
 const image = language => {
+
   switch (language) {
   case 'python': return 'python';
   case 'ruby': return 'ruby';
   case 'node': return 'node';
+  case 'c': return 'gcc';
   default: throw new DockerError(`${language} is not a supported language`);
   }
 };
@@ -37,6 +40,8 @@ const cmd = (language, filename) => {
   case 'python': return `python ${dockerVolumeDir}/${filename}`;
   case 'ruby': return `ruby ${dockerVolumeDir}/${filename}`;
   case 'node': return `node ${dockerVolumeDir}/${filename}`;
+  case 'c': return `gcc ${dockerVolumeDir}/${filename}.c -o ${filename} && ./${filename}`;
+  case 'java': return `java ${dockerVolumeDir}/${filename}`;
   default: throw new DockerError(`${language} is not a supported language.`);
   }
 };
@@ -53,8 +58,19 @@ const cmd = (language, filename) => {
  * @return {Promise<Object>}   Promise containing an object with two properties: `stdout` and `stderr`
  */
 module.exports = (language, content) => {
+  console.log(content);
   let filename = md5(content);
   let filepath = __dirname + '/../temp/' + filename;
+
+  if (language === 'c') {
+    filepath += '.c';
+  }
+
+  /*
+    Name the file per usual, but add .java
+
+
+  */
 
   return new Promise((resolve, reject) => {
     fs.writeFile(filepath, content, err => {
@@ -64,12 +80,12 @@ module.exports = (language, content) => {
 
       setTimeout(function() {
         exec(`docker rm -f ${filename}`);
-      }, 60000);
+      }, 10000);
 
       exec(cmdString, (err, stdout, stderr) => {
+        resolve({stdout: stdout.trim(), stderr});
         fs.unlink(filepath, err => {
-          if (err) { reject(err); }
-          resolve({stdout: stdout.trim(), stderr});
+          if (err) { console.log(err); }
         });
       });
     });

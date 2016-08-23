@@ -1,6 +1,8 @@
 /** Dependencies **/
 const app = require('express')();
 
+require('./config/db');
+
 /** Express Middleware **/
 require('./config/express')(app);
 
