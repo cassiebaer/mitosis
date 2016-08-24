@@ -25,8 +25,6 @@ const run = (req, res) => {
   const originRequest = req.get('origin');
   const authEndpoint = `${originRequest}/auth/check-token`;
 
-  //console.log(originRequest, hostRequest);
-
   if (req.get('Authorization')) {
     const token = req.get('Authorization').split(' ')[1];
 
@@ -40,16 +38,16 @@ const run = (req, res) => {
     .then(() => {
       return decodeToken(token);
     })
-    .then(() => {
-      docker(req.body.language, req.body.content)
+    .then((compiles) => {
+      docker(req.body.language, req.body.content, compiles)
         .then(res.json.bind(res))
         .catch(res.json.bind(res));
     })
     .catch((err) => {
       if (err.message === 'Compile limit exceeded') {
         console.log('expected behavior');
+        res.status(400).json({ message: 'Compile limit exceeded' });
       }
-      res.status(400).json({ message: 'Compile limit exceeded' });
     });
 
   } else {
@@ -75,19 +73,20 @@ const decodeToken = (token) => {
     }
   })
   .then(user => {
-
-    console.log(user);
-
-    if (user.dataValues.compileCount >= user.dataValues.compileLimit) {
-      throw Error('Compile limit exceeded');
-    }
-
     if (!user) {
-      Usage.create({
+      return Usage.create({
         email,
+      })
+      .then(user => {
+        return user.dataValues.compileLimit - user.dataValues.compileCount;
       });
     } else {
+      if (user.dataValues.compileCount >= user.dataValues.compileLimit) {
+        throw Error('Compile limit exceeded');
+      }
       user.increment('compileCount', {by: 1});
+      console.log(user);
+      return user.dataValues.compileLimit - user.dataValues.compileCount;
     }
   });
 };

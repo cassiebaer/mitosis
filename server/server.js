@@ -1,6 +1,7 @@
 /** Dependencies **/
 const app = require('express')();
 
+/** Postgres Sequelize DB Config **/
 require('./config/db');
 
 /** Express Middleware **/

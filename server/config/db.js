@@ -16,4 +16,8 @@ module.exports = sequelize;
 sequelize.authenticate()
   .then(() => console.log('Database is connected'))
   .then(() => sequelize.sync())
+  .then(() => {
+    /** Database Seed **/
+    require('./seed');
+  })
   .catch(err => console.error('DB Error: ', err));

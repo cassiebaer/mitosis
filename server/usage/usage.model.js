@@ -5,7 +5,7 @@ const Usage = sequelize.define('usage', {
   email: { type: Sequelize.STRING, required: true },
   compileCount: {
     type: Sequelize.INTEGER,
-    defaultValue: 0,
+    defaultValue: 1,
   },
   compileLimit: {
     type: Sequelize.INTEGER,

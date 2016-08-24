@@ -6,8 +6,8 @@ const Promise = require('bluebird');
 
 /** Helper Variables **/
 const dockerVolumeDir = '/usr/src/app';
-// const dockerRunCmd = 'docker run --rm -t --name';
-const dockerRunCmd = 'docker run -t --name';
+const dockerRunCmd = 'docker run --rm -t --name';
+// const dockerRunCmd = 'docker run -t --name';
 const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
 
 /** Helper Functions **/
@@ -57,7 +57,7 @@ const cmd = (language, filename) => {
  * @param  {Function} done     Callback function
  * @return {Promise<Object>}   Promise containing an object with two properties: `stdout` and `stderr`
  */
-module.exports = (language, content) => {
+module.exports = (language, content, compiles) => {
   console.log(content);
   let filename = md5(content);
   let filepath = __dirname + '/../temp/' + filename;
@@ -68,8 +68,6 @@ module.exports = (language, content) => {
 
   /*
     Name the file per usual, but add .java
-
-
   */
 
   return new Promise((resolve, reject) => {
@@ -83,7 +81,7 @@ module.exports = (language, content) => {
       }, 10000);
 
       exec(cmdString, (err, stdout, stderr) => {
-        resolve({stdout: stdout.trim(), stderr});
+        resolve({stdout: stdout.trim(), stderr, compiles});
         fs.unlink(filepath, err => {
           if (err) { console.log(err); }
         });
