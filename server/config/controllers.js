@@ -65,7 +65,6 @@ module.exports = {
 const decodeToken = (token) => {
   const payload = jwt.decode(token, config);
   const email = payload.email;
-  console.log(payload);
 
   return Usage.findOne({
     where: {
@@ -85,7 +84,6 @@ const decodeToken = (token) => {
         throw Error('Compile limit exceeded');
       }
       user.increment('compileCount', {by: 1});
-      console.log(user);
       return user.dataValues.compileLimit - user.dataValues.compileCount;
     }
   });
