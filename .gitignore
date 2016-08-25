@@ -1,2 +1,4 @@
 node_modules
-temp/
+temp
+env.sh
+testing

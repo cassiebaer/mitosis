@@ -18,9 +18,10 @@ const dockerVolume = `-v ${__dirname + '/../temp'}:${dockerVolumeDir}`;
  */
 const image = language => {
   switch (language) {
-  case 'python': return 'python';
-  case 'ruby': return 'ruby';
-  case 'node': return 'node';
+  case 'Python': return 'python';
+  case 'Ruby': return 'ruby';
+  case 'Node': return 'node';
+  case 'C': return 'gcc';
   default: throw new DockerError(`${language} is not a supported language`);
   }
 };
@@ -34,9 +35,11 @@ const image = language => {
  */
 const cmd = (language, filename) => {
   switch (language) {
-  case 'python': return `python ${dockerVolumeDir}/${filename}`;
-  case 'ruby': return `ruby ${dockerVolumeDir}/${filename}`;
-  case 'node': return `node ${dockerVolumeDir}/${filename}`;
+  case 'Python': return `python ${dockerVolumeDir}/${filename}`;
+  case 'Ruby': return `ruby ${dockerVolumeDir}/${filename}`;
+  case 'Node': return `node ${dockerVolumeDir}/${filename}`;
+  case 'C': return `sh -c "gcc ${dockerVolumeDir}/${filename}.c -o ${dockerVolumeDir}/${filename}; ${dockerVolumeDir}/${filename}"`;
+  case 'java': return `java ${dockerVolumeDir}/${filename}`;
   default: throw new DockerError(`${language} is not a supported language.`);
   }
 };
@@ -52,25 +55,38 @@ const cmd = (language, filename) => {
  * @param  {Function} done     Callback function
  * @return {Promise<Object>}   Promise containing an object with two properties: `stdout` and `stderr`
  */
-module.exports = (language, content) => {
+module.exports = (language, content, compiles) => {
+  console.log(content);
   let filename = md5(content);
   let filepath = __dirname + '/../temp/' + filename;
+
+  if (language === 'C') {
+    filepath += '.c';
+  }
 
   return new Promise((resolve, reject) => {
     fs.writeFile(filepath, content, err => {
       if (err) { reject(err); }
-      /* "docker run --rm -t --name hashFileName -v /../temp:/usr/src/app python python usr/src/app/hashFileName" */
+
+      //"docker run --rm -t --name hashFileName -v /../temp:/usr/src/app gcc "gcc usr/src/app/hashFileName.c -o usr/../hash; eval""
       let cmdString = [dockerRunCmd, filename, dockerVolume, image(language), cmd(language, filename)].join(' ');
 
       setTimeout(function() {
         exec(`docker rm -f ${filename}`);
-      }, 60000);
+      }, 10000);
 
       exec(cmdString, (err, stdout, stderr) => {
+        console.log('err: ', err);
+        console.log('stdout: ', stdout);
+        console.log('stderr: ', stderr);
+        resolve({stdout: stdout.trim(), stderr, compiles});
         fs.unlink(filepath, err => {
-          if (err) { reject(err); }
-          resolve({stdout: stdout.trim(), stderr});
+          if (err) { console.log(err); }
         });
+
+        if (language === 'C') {
+          fs.unlink(filepath.slice(-2));
+        }
       });
     });
   });
